@@ -1,5 +1,6 @@
 import { useChainId } from "wagmi";
-import { isPharosNetwork, getExplorerTxUrl } from "../lib/pharos";
+import { getExplorerTxUrl } from "../lib/pharos";
+import { CONFIGURED_CHAIN_ID } from "../lib/contracts";
 import type { TxState } from "../types";
 
 interface ClaimButtonProps {
@@ -20,12 +21,12 @@ export function ClaimButton({
   className = "",
 }: ClaimButtonProps) {
   const chainId = useChainId();
-  const onPharos = isPharosNetwork(chainId);
+  const onCorrectNetwork = chainId === CONFIGURED_CHAIN_ID;
 
-  const isDisabled = disabled || isLoading || !onPharos || txState.status === "success";
+  const isDisabled = disabled || isLoading || !onCorrectNetwork || txState.status === "success";
 
   function getButtonText(): string {
-    if (!onPharos) return "Switch to Pharos Network";
+    if (!onCorrectNetwork) return "Switch Network";
     if (txState.status === "pending") return "Confirm in wallet…";
     if (txState.status === "confirming") return "Confirming…";
     if (txState.status === "success") return "Claimed!";
