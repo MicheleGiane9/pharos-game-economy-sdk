@@ -45,20 +45,7 @@ cd pharos-game-economy-sdk
 npm install
 ```
 
-### 3. Configure environment
-
-```bash
-cp .env.example .env
-```
-
-Edit `.env` and fill in:
-```
-PRIVATE_KEY=your_wallet_private_key
-```
-
-> Never commit your real private key. The `.env` file is already in `.gitignore`.
-
-### 4. Compile contracts
+### 3. Compile contracts
 
 ```bash
 npx hardhat compile
@@ -123,16 +110,25 @@ Dashboard is live at `http://localhost:5173`.
 
 ## Deploy to Pharos Testnet
 
+> Only needed for testnet/mainnet — **not required for local testing**.
+
 ### 1. Get testnet PHRS
 
 Get free PHRS from the Pharos faucet for gas fees.
 
 ### 2. Configure .env
 
+```bash
+cp .env.example .env
+```
+
+Edit `.env` and fill in:
 ```
 PRIVATE_KEY=your_wallet_private_key
 PHAROS_TESTNET_RPC=https://atlantic.dplabs-internal.com
 ```
+
+> Never commit your real private key. The `.env` file is already in `.gitignore`.
 
 ### 3. Deploy
 
