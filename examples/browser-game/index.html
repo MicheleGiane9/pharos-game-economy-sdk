@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dragon Quest — Pharos Economy Demo</title>
+    <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      body { font-family: system-ui, sans-serif; background: #0d0d1a; color: #e2e8f0; min-height: 100vh; }
+
+      .header { background: #111827; border-bottom: 1px solid #1e3a5f; padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; }
+      .header h1 { font-size: 1.25rem; font-weight: 700; color: #60a5fa; }
+      .header .wallet-info { font-size: 0.75rem; color: #94a3b8; font-family: monospace; }
+
+      .layout { display: grid; grid-template-columns: 1fr 350px; gap: 1.5rem; padding: 1.5rem 2rem; max-width: 1200px; margin: 0 auto; }
+
+      .card { background: #111827; border: 1px solid #1e3a5f; border-radius: 12px; padding: 1.25rem; }
+      .card h2 { font-size: 0.875rem; font-weight: 600; color: #60a5fa; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.05em; }
+
+      .stat-row { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid #1e2d45; }
+      .stat-row:last-child { border-bottom: none; }
+      .stat-label { font-size: 0.8rem; color: #94a3b8; }
+      .stat-value { font-size: 0.875rem; font-weight: 600; color: #e2e8f0; }
+      .highlight { color: #34d399 !important; }
+
+      .monster-card { display: flex; align-items: center; gap: 1rem; padding: 0.75rem; background: #0f172a; border-radius: 8px; margin-bottom: 0.75rem; }
+      .monster-name { font-weight: 600; margin-bottom: 0.25rem; }
+      .hp-bar { height: 6px; background: #1e3a5f; border-radius: 3px; overflow: hidden; margin-top: 0.25rem; }
+      .hp-fill { height: 100%; background: #ef4444; transition: width 0.3s ease; }
+
+      .quest-item { padding: 0.75rem; background: #0f172a; border-radius: 8px; margin-bottom: 0.5rem; }
+      .quest-name { font-weight: 600; font-size: 0.875rem; margin-bottom: 0.25rem; }
+      .quest-desc { font-size: 0.75rem; color: #94a3b8; }
+      .quest-reward { font-size: 0.75rem; color: #34d399; margin-top: 0.25rem; }
+      .quest-done { opacity: 0.4; text-decoration: line-through; }
+
+      .btn { padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600; font-size: 0.8rem; cursor: pointer; border: none; transition: all 0.15s; width: 100%; margin-bottom: 0.5rem; }
+      .btn-primary { background: #1a4dff; color: white; }
+      .btn-primary:hover { background: #0033e6; }
+      .btn-attack { background: #ef4444; color: white; }
+      .btn-attack:hover { background: #dc2626; }
+      .btn-claim { background: #059669; color: white; }
+      .btn-claim:hover { background: #047857; }
+      .btn-secondary { background: #1e3a5f; color: #94a3b8; }
+      .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+      #game-log { height: 220px; overflow-y: auto; font-size: 0.75rem; color: #94a3b8; font-family: monospace; }
+      #game-log p { padding: 0.15rem 0; border-bottom: 1px solid #0f172a; }
+
+      @media (max-width: 768px) { .layout { grid-template-columns: 1fr; } }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>Dragon Quest — Pharos Economy Demo</h1>
+      <span class="wallet-info" id="wallet-display">Not connected</span>
+    </div>
+
+    <div class="layout">
+      <!-- Left column -->
+      <div>
+        <!-- Player stats -->
+        <div class="card" style="margin-bottom: 1.5rem;">
+          <h2>Player Stats</h2>
+          <div class="stat-row">
+            <span class="stat-label">Level</span>
+            <span class="stat-value" id="player-level">Level 1 (0/100 XP)</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Pending Rewards</span>
+            <span class="stat-value highlight" id="pending-rewards">0 DGLD</span>
+          </div>
+        </div>
+
+        <!-- Monsters -->
+        <div class="card" style="margin-bottom: 1.5rem;">
+          <h2>Monsters</h2>
+          <div id="monster-list">
+            <div class="monster-card">
+              <span style="font-size: 2rem;">🐌</span>
+              <div style="flex:1">
+                <div class="monster-name">Blue Slime</div>
+                <div class="hp-bar"><div class="hp-fill" id="slime-hp-bar" style="width: 100%"></div></div>
+                <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 2px;" id="slime-hp-text">30/30 HP · +5 DGLD</div>
+              </div>
+              <button class="btn btn-attack" style="width: auto; padding: 0.4rem 0.8rem;" onclick="window.gameActions.attackSlime()">Attack</button>
+            </div>
+            <div class="monster-card">
+              <span style="font-size: 2rem;">🐉</span>
+              <div style="flex:1">
+                <div class="monster-name">Fire Dragon</div>
+                <div class="hp-bar"><div class="hp-fill" id="dragon-hp-bar" style="width: 100%"></div></div>
+                <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 2px;" id="dragon-hp-text">500/500 HP · +50 DGLD</div>
+              </div>
+              <button class="btn btn-attack" style="width: auto; padding: 0.4rem 0.8rem;" onclick="window.gameActions.attackDragon()">Attack</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quests -->
+        <div class="card">
+          <h2>Active Quests</h2>
+          <div id="quest-list">
+            <div class="quest-item" id="quest-intro">
+              <div class="quest-name">First Blood</div>
+              <div class="quest-desc">Defeat your first monster</div>
+              <div class="quest-reward">Reward: +25 DGLD</div>
+            </div>
+            <div class="quest-item" id="quest-dragon">
+              <div class="quest-name">Dragon Slayer</div>
+              <div class="quest-desc">Defeat the Fire Dragon</div>
+              <div class="quest-reward">Reward: +200 DGLD</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right column -->
+      <div>
+        <!-- Economy panel -->
+        <div class="card" style="margin-bottom: 1.5rem;">
+          <h2>Economy</h2>
+          <button class="btn btn-primary" id="btn-connect" onclick="window.gameActions.connect()">
+            Connect Wallet
+          </button>
+          <button class="btn btn-claim" onclick="window.gameActions.claimDaily()">
+            Claim Daily Reward
+          </button>
+          <button class="btn btn-claim" onclick="window.gameActions.claimAll()">
+            Claim All Rewards
+          </button>
+          <hr style="border-color: #1e3a5f; margin: 0.75rem 0;" />
+          <p style="font-size: 0.7rem; color: #64748b; text-align: center;">
+            Open the <a href="http://localhost:5173" target="_blank" style="color: #60a5fa;">Dashboard</a>
+            for full reward management
+          </p>
+        </div>
+
+        <!-- Game log -->
+        <div class="card">
+          <h2>Game Log</h2>
+          <div id="game-log">
+            <p>Welcome to Dragon Quest! Connect your wallet to earn on-chain rewards.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      import { game } from "./game.js";
+
+      window.gameActions = {
+        connect: () => game.connectWallet(),
+        claimDaily: () => game.claimDailyReward(),
+        claimAll: () => game.claimAllRewards(),
+        attackSlime: () => game.attackMonster("slime-001"),
+        attackDragon: () => game.attackMonster("dragon-001"),
+      };
+    </script>
+  </body>
+</html>

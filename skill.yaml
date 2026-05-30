@@ -1,0 +1,149 @@
+name: pharos-game-economy-sdk
+version: 1.0.0
+description: >
+  Complete Web3 game economy SDK for Pharos Network. Generates production-ready
+  ERC20 reward tokens, reward engines, claim systems, wallet integrations, and
+  React dashboards — so indie devs and studios can ship a full onchain economy in minutes.
+author: Pharos Network
+license: MIT
+homepage: https://github.com/PharosNetwork/pharos-game-economy-sdk
+keywords:
+  - web3
+  - gaming
+  - economy
+  - erc20
+  - pharos
+  - rewards
+  - blockchain
+
+category: blockchain-gaming
+
+requirements:
+  - node: ">=18.0.0"
+  - npm: ">=9.0.0"
+
+commands:
+  - name: init
+    description: Scaffold a new game economy project with contracts, frontend, and deployment scripts
+    usage: pharos-economy init [options]
+    options:
+      - flag: --name <name>
+        description: Game project name
+      - flag: --token <tokenName>
+        description: ERC20 reward token name (e.g. "Dragon Gold")
+      - flag: --symbol <symbol>
+        description: Token ticker symbol (e.g. "DGLD")
+      - flag: --supply <amount>
+        description: Initial token supply in whole tokens (default 1000000)
+      - flag: --daily <amount>
+        description: Daily reward amount per player (default 10)
+      - flag: --output <path>
+        description: Output directory (default ./game-economy)
+    examples:
+      - pharos-economy init --name "Dragon Quest" --token "Dragon Gold" --symbol "DGLD"
+      - pharos-economy init --name "Space Raiders" --token "Stardust" --symbol "DUST" --daily 25
+
+  - name: deploy
+    description: Compile and deploy game economy contracts to Pharos Network
+    usage: pharos-economy deploy --network <network>
+    options:
+      - flag: --network <network>
+        description: "Target network: local | testnet | mainnet"
+      - flag: --verify
+        description: Verify contracts on block explorer after deployment
+    examples:
+      - pharos-economy deploy --network local
+      - pharos-economy deploy --network testnet
+      - pharos-economy deploy --network mainnet --verify
+
+  - name: generate
+    description: Regenerate the React frontend dashboard from current config
+    usage: pharos-economy generate --output <path>
+    options:
+      - flag: --output <path>
+        description: Output path for generated frontend (default ./frontend)
+    examples:
+      - pharos-economy generate
+      - pharos-economy generate --output ./my-dashboard
+
+  - name: verify
+    description: Verify deployed contracts on Pharos block explorer
+    usage: pharos-economy verify --network <network> --address <address>
+    options:
+      - flag: --network <network>
+        description: Network where contracts are deployed
+      - flag: --token <address>
+        description: GameRewardToken contract address
+      - flag: --engine <address>
+        description: RewardEngine contract address
+
+  - name: status
+    description: Show deployment status and current on-chain economy parameters
+    usage: pharos-economy status --network <network>
+    options:
+      - flag: --network <network>
+        description: "Network to query: testnet | mainnet"
+
+prompts:
+  - name: create-economy
+    description: Create a complete game economy from a natural-language description
+    template: |
+      Create a complete Pharos game economy for a game called "{gameName}".
+      Token: {tokenName} ({tokenSymbol})
+      Daily reward per player: {dailyReward} tokens
+      Quest reward base: {questReward} tokens
+      Achievement reward base: {achievementReward} tokens
+      Network: {network}
+
+      Generate all contracts, frontend, and deployment scripts.
+
+  - name: add-reward-type
+    description: Add a new reward type to an existing economy
+    template: |
+      Add a new reward type "{rewardType}" to the existing Pharos game economy.
+      Reward amount: {amount} tokens
+      Trigger condition: {condition}
+      Cooldown: {cooldown}
+
+  - name: integrate-unity
+    description: Generate Unity C# bridge for Pharos economy
+    template: |
+      Generate a Unity C# integration bridge for the Pharos game economy.
+      Contract addresses: Token={tokenAddress}, Engine={engineAddress}
+      Network: {network}
+
+examples:
+  - name: Dragon RPG Economy
+    description: Full economy setup for a fantasy RPG
+    steps:
+      - run: pharos-economy init --name "Dragon Quest Online" --token "Dragon Gold" --symbol "DGLD" --daily 10 --output ./dragon-economy
+      - run: cd dragon-economy && npm install
+      - run: pharos-economy deploy --network testnet
+      - run: pharos-economy generate
+
+  - name: Space Shooter Economy
+    description: Economy setup for a browser-based space shooter
+    steps:
+      - run: pharos-economy init --name "Cosmos Blasters" --token "Stardust" --symbol "DUST" --daily 25
+      - run: pharos-economy deploy --network testnet --verify
+
+  - name: Casual Mobile Economy
+    description: Simple economy for casual mobile game
+    steps:
+      - run: pharos-economy init --name "Merge Cats" --token "CatCoin" --symbol "MEOW" --supply 500000
+      - run: pharos-economy deploy --network mainnet --verify
+
+metadata:
+  network: pharos
+  chainIds:
+    testnet: 688689
+    mainnet: 1672
+  contracts:
+    - GameRewardToken
+    - RewardEngine
+  frontend:
+    framework: react
+    styling: tailwind
+    wallet: wagmi+rainbowkit
+  audited: false
+  mainnet_ready: true
