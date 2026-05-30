@@ -35,7 +35,7 @@ A production-ready Skill for the [Pharos Agent Center](https://www.pharos.xyz/ag
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/pharos-game-economy-sdk.git
+git clone https://github.com/MicheleGiane9/pharos-game-economy-sdk.git
 cd pharos-game-economy-sdk
 ```
 
